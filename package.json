@@ -1,0 +1,31 @@
+{
+  "name": "Tern Serial Scanner",
+  "type": "module",
+  "scripts": {
+    "dev": "vinxi dev",
+    "build": "vinxi build",
+    "start": "vinxi start"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.15.14",
+    "@solidjs/router": "^0.15.3",
+    "@solidjs/start": "^1.1.7",
+    "node-fetch": "^3.3.2",
+    "solid-js": "^1.9.7",
+    "start-oauth": "^1.2.4",
+    "unstorage": "1.16.1",
+    "vinxi": "^0.5.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.34.0",
+    "@tailwindcss/vite": "^4.1.11",
+    "eslint": "^9.34.0",
+    "globals": "^16.3.0",
+    "solid-devtools": "^0.34.3",
+    "tailwindcss": "^4.1.11",
+    "typescript-eslint": "^8.41.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
