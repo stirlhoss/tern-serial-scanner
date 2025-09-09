@@ -12,6 +12,7 @@ export default defineConfig({
             }),
         ],
         server: {
+            preset: "netlify",
             allowedHosts: ["shortly-master-marmot.ngrok-free.app"],
         },
     },

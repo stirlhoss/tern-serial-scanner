@@ -1,7 +1,6 @@
 import { checkNetSuiteRateLimit } from "~/services/netsuite";
-import { APIEvent } from "@solidjs/start/server";
 
-export async function GET({ request }: APIEvent) {
+export async function GET() {
   "use-server";
 
   try {
@@ -36,6 +35,8 @@ export async function GET({ request }: APIEvent) {
       }
     }
 
+    const recList: string[] = [];
+
     const response = {
       status,
       timestamp: new Date().toISOString(),
@@ -47,7 +48,7 @@ export async function GET({ request }: APIEvent) {
         retryAfter: rateLimitInfo.retryAfter || null,
       },
       warning,
-      recommendations: [],
+      recommendations: recList,
     };
 
     // Add recommendations based on status

@@ -14,21 +14,19 @@ interface updateUserPayload {
 }
 
 const config = {
-  url:
-    process.env.DB_URL ??
-    "file:/home/stirl/.local/db/tern-serial-scanner/test.db",
-  encryptionKey: process.env.ENCRYPTION_KEY,
+  url: process.env.TURSO_DATABASE_URL ?? process.env.LOCAL_DB!,
+  syncUrl: process.env.DB_URL,
+  authToken: process.env.TURSO_AUTH_TOKEN,
+  syncInterval: 60,
 };
 
 export const turso = createClient(config);
 
-export const createDB = async function () {
-  await turso.execute({
+export const createDB = (function () {
+  turso.execute({
     sql: "CREATE TABLE IF NOT EXISTS users (id INTEGER Primary Key AUTOINCREMENT, email TEXT NOT NULL, name TEXT DEFAULT Null, location INTEGER DEFAULT NUll)",
   });
-};
-
-await createDB();
+})();
 
 export async function createUser(email: string) {
   await turso.execute({

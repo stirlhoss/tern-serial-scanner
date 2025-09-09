@@ -6,3 +6,8 @@ tmp/
 node_modules/
 .env
 .data/
+
+# Local Netlify folder
+.netlify
+.output
+.vinxi

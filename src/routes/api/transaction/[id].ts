@@ -9,10 +9,6 @@ interface Link {
 interface Item {
   id: number;
   links: Link[];
-  customer: string;
-  name: string;
-  location: string;
-  quantity: number;
   trandate: string;
   tranid: string;
 }
@@ -36,7 +32,6 @@ export async function GET({ params }: APIEvent) {
           Transaction.tranid,
           Transaction.id,
           Transaction.trandate,
-          BUILTIN.DF(Transaction.entity) AS customer,
       FROM
           Transaction
       WHERE
@@ -61,7 +56,8 @@ export async function GET({ params }: APIEvent) {
     console.log(
       `Successfully retrieved ${record.items.length} transaction lines for SO: ${soNum}`,
     );
-    return record.items;
+
+    return record.items[0].id;
   } catch (error) {
     console.error(
       `Failed to retrieve transaction lines for SO ${soNum}:`,

@@ -1,3 +1,4 @@
+import { createAsync } from "@solidjs/router";
 import { createSignal, createResource, Suspense, For, Show } from "solid-js";
 import { SerialNumberData } from "~/routes/api/submit-serial-numbers";
 
@@ -19,22 +20,23 @@ const getSalesOrderId = async (soNum: string) => {
   if (!soNum) return null;
   const res = await fetch(`/api/transaction/${encodeURIComponent(soNum)}`);
   if (!res.ok) throw new Error("Failed to fetch sales order");
-  const parsed = await res.json();
-  return parsed[0].id;
+  return res.json();
 };
 
 export default function Form() {
   const [soNum, setSoNum] = createSignal("");
-  const [inputValue, setInputValue] = createSignal("");
   const [selectedLocation, setSelectedLocation] = createSignal("15");
   const [serialNumbers, setSerialNumbers] = createSignal<
     Record<string, string>
   >({});
   const [isSubmitting, setIsSubmitting] = createSignal(false);
 
-  const [soId] = createResource(soNum, getSalesOrderId);
-  const [salesOrder] = createResource(soId, getSalesOrderById);
-  const [items] = createResource(soId, getSalesOrderItems);
+  const soId = createAsync(() => getSalesOrderId(soNum()));
+  // const [soId] = createResource(soNum, getSalesOrderId);
+  const salesOrder = createAsync(() => getSalesOrderById(soId()));
+  // const [salesOrder] = createResource(soId, getSalesOrderById);
+  const items = createAsync(() => getSalesOrderItems(soId()));
+  // const [items] = createResource(soId, getSalesOrderItems);
 
   const updateSerialNumber = (inputId: string, value: string) => {
     setSerialNumbers((prev) => ({ ...prev, [inputId]: value }));
@@ -75,9 +77,6 @@ export default function Form() {
         }
       });
 
-      console.log("Serial number data:", serialData);
-
-      // TODO: Send to your backend API
       await fetch(`/api/submit-serial-numbers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -99,18 +98,19 @@ export default function Form() {
 
   return (
     <>
-      <div class="flex flex-row justify-center gap-2 text-xl">
+      <div class="flex flex-col sm:flex-row justify-center gap-2 text-xl">
         <div class="flex flex-col gap-4 text-xl">
           <label for="sales-order-number">Sales order number</label>
           <input
             type="text"
             id="sonum"
             name="sales-order-number"
-            class="w-s m-auto text-center border-dashed border-black border-2 rounded-md px-2 py-1"
-            value={inputValue()}
-            onInput={(e) => setInputValue(e.currentTarget.value)}
+            class="w-s m-auto text-center border-solid border-black border-2 rounded-md px-2 py-1"
+            // value={inputValue()}
+            // onInput={(e) => setInputValue(e.currentTarget.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
+                e.preventDefault();
                 setSoNum(e.currentTarget.value);
               }
             }}
@@ -122,22 +122,23 @@ export default function Form() {
           <select
             id="location"
             name="location"
-            class="w-s m-auto text-center border-dashed border-black border-2 rounded-md px-2 py-1"
+            class="w-s m-auto text-center border-solid border-black border-2 rounded-md px-2 py-1"
             value={selectedLocation()}
             onInput={(e) => setSelectedLocation(e.currentTarget.value)}
           >
-            <option value="15">2-Olney</option>
-            <option value="16">1-West</option>
+            <option value="15">2 - Olney</option>
+            <option value="16">1 - West</option>
           </select>
         </div>
       </div>
-      <Suspense>
+
+      <Suspense fallback={<div>loading...</div>}>
         <h2 class="text-3xl my-4">{salesOrder()?.entity.refName}</h2>
       </Suspense>
 
       <form onSubmit={handleSubmit}>
         <div class="flex-col">
-          <Suspense>
+          <Suspense fallback={<div>loading...</div>}>
             <For each={itemsFilteredByLoc()}>
               {(item, index) => (
                 <div class="flex place-content-between gap-2 text-left border-b-2">
