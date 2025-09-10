@@ -1,7 +1,7 @@
 import { checkNetSuiteRateLimit } from "~/services/netsuite";
 
 export async function GET() {
-  "use-server";
+  "use server";
 
   try {
     const rateLimitInfo = await checkNetSuiteRateLimit();

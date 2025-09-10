@@ -1,16 +1,13 @@
-import { useMatch, useNavigate } from "@solidjs/router";
+import { useMatch } from "@solidjs/router";
 import { Show } from "solid-js";
 import { useSession } from "~/lib/Context";
 
 export default function Nav() {
   const { signedIn } = useSession();
   const isHome = useMatch(() => "/");
-  const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Use a standard link instead of action to avoid redirect loops
     fetch("/api/logout", { method: "POST" }).finally(() => {
-      // Force a full page reload to clear client state
       window.location.href = "/login";
     });
   };

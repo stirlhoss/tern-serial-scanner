@@ -13,7 +13,7 @@ export interface SerialNumberData {
 }
 
 export async function POST({ request }: APIEvent) {
-  "use-server";
+  "use server";
 
   if (request.headers.get("Content-Type")?.includes("application/json")) {
     const data = (await request.json()) as RequestBody;

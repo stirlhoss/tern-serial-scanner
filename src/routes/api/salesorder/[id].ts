@@ -126,7 +126,7 @@ interface SORecord {
 }
 
 export async function GET({ params }: APIEvent) {
-  "use-server";
+  "use server";
   const soId = params.id;
   console.log(`Fetching sales order: ${soId}`);
 

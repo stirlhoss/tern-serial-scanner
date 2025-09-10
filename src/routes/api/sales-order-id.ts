@@ -2,7 +2,7 @@ import { netsuiteRequestWithRetry } from "~/services/netsuite";
 import { APIEvent } from "@solidjs/start/server";
 
 export async function GET({ request }: APIEvent) {
-  "use-server";
+  "use server";
   const url = new URL(request.url);
   const searchParams = url.searchParams;
   const soNum = searchParams.get("soNum");

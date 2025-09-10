@@ -48,14 +48,14 @@ const DEFAULT_RETRY_CONFIG: RetryConfig = {
 };
 
 const getAccessToken = async () => {
-  "use-server";
+  "use server";
   const { data } = await getSession();
 
   return data.accessToken;
 };
 
 const getRefreshToken = async () => {
-  "use-server";
+  "use server";
   const { data } = await getSession();
 
   return data.refreshToken;

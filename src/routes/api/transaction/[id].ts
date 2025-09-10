@@ -23,7 +23,7 @@ export interface SalesOrderTransactionLines {
 }
 
 export async function GET({ params }: APIEvent) {
-  "use-server";
+  "use server";
   const soNum = params.id;
   console.log(`Fetching transaction lines for SO: ${soNum}`);
 
