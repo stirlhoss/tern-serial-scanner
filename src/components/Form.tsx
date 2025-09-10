@@ -92,6 +92,11 @@ export default function Form() {
       });
 
       alert("Serial numbers submitted successfully!");
+
+      // Reset form state after successful submission
+      setSoNum("");
+      setSelectedLocation("15");
+      setSerialNumbers({});
     } catch (error) {
       console.error("Failed to submit serial numbers:", error);
       alert("Failed to submit serial numbers. Please try again.");
@@ -117,6 +122,7 @@ export default function Form() {
             id="sonum"
             class="w-s shadow-md m-auto text-center box-content border-solid border-black border-2 rounded-md px-2 py-1"
             onKeyDown={handleKeyDown}
+            onBlur={(e) => setSoNum(e.currentTarget.value)}
             placeholder="Enter Sales order number"
           />
         </div>
