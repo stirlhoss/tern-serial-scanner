@@ -1,4 +1,4 @@
-import { action, query, redirect } from "@solidjs/router";
+import { query, redirect } from "@solidjs/router";
 import { getSession } from "./server";
 
 // Define which routes require authentication
@@ -19,10 +19,3 @@ export const querySession = query(async (path: string) => {
   if (isProtectedRoute(path)) throw redirect(`/login?redirect=${path}`);
   return null;
 }, "session");
-
-export const logout = action(async () => {
-  "use server";
-  const session = await getSession();
-  await session.update({ id: undefined });
-  throw redirect("/login", { revalidate: "session" });
-});

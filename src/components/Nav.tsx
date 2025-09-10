@@ -1,10 +1,19 @@
-import { useMatch } from "@solidjs/router";
+import { useMatch, useNavigate } from "@solidjs/router";
 import { Show } from "solid-js";
 import { useSession } from "~/lib/Context";
 
 export default function Nav() {
-  const { signedIn, signOut } = useSession();
+  const { signedIn } = useSession();
   const isHome = useMatch(() => "/");
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Use a standard link instead of action to avoid redirect loops
+    fetch("/api/logout", { method: "POST" }).finally(() => {
+      // Force a full page reload to clear client state
+      window.location.href = "/login";
+    });
+  };
 
   return (
     <nav class="fixed top-0 left-0 w-full bg-sky-800 shadow-md z-50">
@@ -20,7 +29,10 @@ export default function Nav() {
         </li>
         <li class="ml-auto px-2 sm:px-6 text-white">
           <Show when={signedIn()} fallback={<a href="/login">Login</a>}>
-            <button onclick={signOut} class="cursor-pointer">
+            <button
+              onclick={handleLogout}
+              class="cursor-pointer hover:underline"
+            >
               Logout
             </button>
           </Show>
