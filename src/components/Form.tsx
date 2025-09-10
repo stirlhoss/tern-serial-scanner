@@ -1,24 +1,31 @@
 import { createAsync } from "@solidjs/router";
-import { createSignal, createResource, Suspense, For, Show } from "solid-js";
+import { createSignal, Suspense, For, Show } from "solid-js";
 import { SerialNumberData } from "~/routes/api/submit-serial-numbers";
 
-const getSalesOrderItems = async (soId: string) => {
+interface Id {
+  id: string;
+}
+const getSalesOrderItems = async (soId: Id) => {
   if (!soId) return null;
-  const res = await fetch(`/api/salesorder/${encodeURIComponent(soId)}/items`);
+  const res = await fetch(
+    `/api/salesorder/${encodeURIComponent(soId.id)}/items`,
+  );
   if (!res.ok) throw new Error("Failed to fetch sales order");
   return res.json();
 };
 
-const getSalesOrderById = async (soId: string) => {
+const getSalesOrderById = async (soId: Id) => {
   if (!soId) return null;
-  const res = await fetch(`/api/salesorder/${encodeURIComponent(soId)}`);
+  const res = await fetch(`/api/salesorder/${encodeURIComponent(soId.id)}`);
   if (!res.ok) throw new Error("Failed to fetch sales order");
   return res.json();
 };
 
 const getSalesOrderId = async (soNum: string) => {
   if (!soNum) return null;
-  const res = await fetch(`/api/transaction/${encodeURIComponent(soNum)}`);
+  const res = await fetch(
+    `/api/sales-order-id?soNum=${encodeURIComponent(soNum)}`,
+  );
   if (!res.ok) throw new Error("Failed to fetch sales order");
   return res.json();
 };
@@ -32,11 +39,8 @@ export default function Form() {
   const [isSubmitting, setIsSubmitting] = createSignal(false);
 
   const soId = createAsync(() => getSalesOrderId(soNum()));
-  // const [soId] = createResource(soNum, getSalesOrderId);
   const salesOrder = createAsync(() => getSalesOrderById(soId()));
-  // const [salesOrder] = createResource(soId, getSalesOrderById);
   const items = createAsync(() => getSalesOrderItems(soId()));
-  // const [items] = createResource(soId, getSalesOrderItems);
 
   const updateSerialNumber = (inputId: string, value: string) => {
     setSerialNumbers((prev) => ({ ...prev, [inputId]: value }));
@@ -96,24 +100,23 @@ export default function Form() {
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      setSoNum(e.currentTarget.value);
+    }
+  };
+
   return (
     <>
       <div class="flex flex-col sm:flex-row justify-center gap-2 text-xl">
         <div class="flex flex-col gap-4 text-xl">
-          <label for="sales-order-number">Sales order number</label>
+          <label for="sonum">Sales order number</label>
           <input
             type="text"
             id="sonum"
-            name="sales-order-number"
-            class="w-s m-auto text-center border-solid border-black border-2 rounded-md px-2 py-1"
-            // value={inputValue()}
-            // onInput={(e) => setInputValue(e.currentTarget.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                setSoNum(e.currentTarget.value);
-              }
-            }}
+            class="w-s shadow-md m-auto text-center box-content border-solid border-black border-2 rounded-md px-2 py-1"
+            onKeyDown={handleKeyDown}
             placeholder="Enter Sales order number"
           />
         </div>
@@ -121,8 +124,7 @@ export default function Form() {
           <label for="location">Location</label>
           <select
             id="location"
-            name="location"
-            class="w-s m-auto text-center border-solid border-black border-2 rounded-md px-2 py-1"
+            class="w-s shadow-md m-auto text-center box-content border-solid border-black border-2 rounded-md px-2 py-1"
             value={selectedLocation()}
             onInput={(e) => setSelectedLocation(e.currentTarget.value)}
           >
@@ -137,8 +139,8 @@ export default function Form() {
       </Suspense>
 
       <form onSubmit={handleSubmit}>
-        <div class="flex-col">
-          <Suspense fallback={<div>loading...</div>}>
+        <Suspense fallback={<div>loading...</div>}>
+          <div class="flex-col">
             <For each={itemsFilteredByLoc()}>
               {(item, index) => (
                 <div class="flex place-content-between gap-2 text-left border-b-2">
@@ -186,8 +188,8 @@ export default function Form() {
                 </div>
               )}
             </For>
-          </Suspense>
-        </div>
+          </div>
+        </Suspense>
 
         <Show when={salesOrder()}>
           <button

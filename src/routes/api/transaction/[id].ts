@@ -48,6 +48,8 @@ export async function GET({ params }: APIEvent) {
         body: { q: query },
         headers: {
           Prefer: "transient",
+          Accept: "application/json",
+          "Content-Type": "application/json",
         },
       },
       "aggressive",
@@ -57,7 +59,7 @@ export async function GET({ params }: APIEvent) {
       `Successfully retrieved ${record.items.length} transaction lines for SO: ${soNum}`,
     );
 
-    return record.items[0].id;
+    return JSON.stringify({ id: record.items[0].id });
   } catch (error) {
     console.error(
       `Failed to retrieve transaction lines for SO ${soNum}:`,
