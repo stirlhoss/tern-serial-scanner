@@ -1,8 +1,10 @@
 import { netsuiteRequestBatch } from "~/services/netsuite";
 import { APIEvent } from "@solidjs/start/server";
-
+interface Id {
+  id: string;
+}
 interface RequestBody {
-  salesOrderId: string;
+  salesOrderId: Id;
   salesOrderNumber: string;
   serialNumbers: SerialNumberData[];
 }
@@ -19,7 +21,7 @@ export async function POST({ request }: APIEvent) {
     const data = (await request.json()) as RequestBody;
 
     console.log(
-      `Updating serial numbers for sales order items on SO: ${data.salesOrderId}`,
+      `Updating serial numbers for sales order items on SO: ${data.salesOrderId.id}`,
     );
 
     // Validate input data
@@ -39,14 +41,14 @@ export async function POST({ request }: APIEvent) {
         },
       );
     }
-
+    console.log(JSON.stringify(data.salesOrderId.id, null, 2));
     const itemRequests = data.serialNumbers.map((item) => {
       const serials: string = item.serialNumbers.join(`\n`);
 
       const body = { custcol_nsts_bike_serial_number: serials };
 
       return {
-        endpoint: `/services/rest/record/v1/salesorder/${data.salesOrderId}/item/${item.itemLineId}`,
+        endpoint: `/services/rest/record/v1/salesorder/${data.salesOrderId.id}/item/${item.itemLineId}`,
         options: {
           method: "PATCH" as const,
           body: body,
@@ -67,7 +69,7 @@ export async function POST({ request }: APIEvent) {
         JSON.stringify({
           success: true,
           processed: results.length,
-          salesOrderId: data.salesOrderId,
+          salesOrderId: data.salesOrderId.id,
         }),
         {
           status: 200,
@@ -76,7 +78,7 @@ export async function POST({ request }: APIEvent) {
       );
     } catch (error: any) {
       console.error("Failed to update serial numbers:", {
-        salesOrderId: data.salesOrderId,
+        salesOrderId: data.salesOrderId.id,
         error: error.message,
         status: error.status,
       });
@@ -85,7 +87,7 @@ export async function POST({ request }: APIEvent) {
         JSON.stringify({
           success: false,
           error: error.message,
-          salesOrderId: data.salesOrderId,
+          salesOrderId: data.salesOrderId.id,
         }),
         {
           status: 500,
