@@ -14,35 +14,74 @@ interface updateUserPayload {
 }
 
 const config = {
-  url: process.env.TURSO_DATABASE_URL ?? process.env.LOCAL_DB!,
-  syncUrl: process.env.DB_URL,
+  url:
+    process.env.TURSO_DATABASE_URL ??
+    process.env.LOCAL_DB ??
+    "file:.data/sqlite.db",
   authToken: process.env.TURSO_AUTH_TOKEN,
-  syncInterval: 60,
 };
 
 export const turso = createClient(config);
 
-export const createDB = (function () {
-  turso.execute({
-    sql: "CREATE TABLE IF NOT EXISTS users (id INTEGER Primary Key AUTOINCREMENT, email TEXT NOT NULL, name TEXT DEFAULT Null, location INTEGER DEFAULT NUll)",
-  });
-})();
+// Initialize database and create tables if needed
+export async function initializeDB() {
+  try {
+    console.log("Initializing database...");
+    await turso.execute({
+      sql: "CREATE TABLE IF NOT EXISTS users (id INTEGER Primary Key AUTOINCREMENT, email TEXT NOT NULL, name TEXT DEFAULT Null, location INTEGER DEFAULT NUll)",
+    });
+    console.log("Database initialized successfully");
+    return true;
+  } catch (error) {
+    console.error("Failed to initialize database:", error);
+    return false;
+  }
+}
+
+// Ensure DB is initialized before any operations
+let dbInitialized = false;
+
+// Helper to ensure DB is ready before operations
+async function ensureDBInitialized() {
+  if (!dbInitialized) {
+    dbInitialized = await initializeDB();
+    if (!dbInitialized) {
+      throw new Error("Database initialization failed");
+    }
+  }
+  return dbInitialized;
+}
 
 export async function createUser(email: string) {
-  await turso.execute({
-    sql: "INSERT INTO users (email) VALUES (?)",
-    args: [email],
-  });
-  const user = await findUserByEmail(email);
+  try {
+    await ensureDBInitialized();
 
-  return user!;
+    await turso.execute({
+      sql: "INSERT INTO users (email) VALUES (?)",
+      args: [email],
+    });
+
+    const user = await findUserByEmail(email);
+    if (!user) {
+      throw new Error("Failed to create user: User not found after creation");
+    }
+
+    return user;
+  } catch (error) {
+    console.error(`Error creating user with email ${email}:`, error);
+    throw new Error(
+      `Failed to create user: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
 }
 
 export async function findUserByEmail(email: string) {
   try {
+    await ensureDBInitialized();
+
     const rs = await turso.execute({
-      sql: "SELECT * FROM users WHERE email is $email",
-      args: { email: email },
+      sql: "SELECT * FROM users WHERE email = ?",
+      args: [email],
     });
 
     if (rs.rows.length === 0) {
@@ -60,15 +99,20 @@ export async function findUserByEmail(email: string) {
 
     return user;
   } catch (error) {
-    throw new Error(`Error finding user: ${error}`);
+    console.error(`Error finding user by email ${email}:`, error);
+    throw new Error(
+      `Error finding user: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 }
 
 export async function findUserById(userId: string) {
   try {
+    await ensureDBInitialized();
+
     const rs = await turso.execute({
-      sql: "SELECT * FROM users WHERE id is $id",
-      args: { id: userId },
+      sql: "SELECT * FROM users WHERE id = ?",
+      args: [userId],
     });
 
     if (rs.rows.length === 0) {
@@ -86,7 +130,10 @@ export async function findUserById(userId: string) {
 
     return user;
   } catch (error) {
-    throw new Error(`Error finding user: ${error}`);
+    console.error(`Error finding user by ID ${userId}:`, error);
+    throw new Error(
+      `Error finding user: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 }
 
@@ -121,6 +168,8 @@ export async function updateUser(userId: string, updates: updateUserPayload) {
   `;
 
   try {
+    await ensureDBInitialized();
+
     const rs = await turso.execute({
       sql: sql,
       args: args,

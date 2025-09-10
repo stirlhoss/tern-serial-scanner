@@ -13,7 +13,6 @@ export const getSession = () =>
   useSession<Session>({
     password: process.env.SESSION_SECRET!,
     cookie: {
-      name: "tern_session",
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
