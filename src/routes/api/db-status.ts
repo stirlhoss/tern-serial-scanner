@@ -1,8 +1,7 @@
 import { json } from "@solidjs/router";
-import type { APIEvent } from "@solidjs/start/server";
 import { turso, initializeDB } from "~/lib/db";
 
-export const GET = async (event: APIEvent) => {
+export const GET = async () => {
   "use server";
 
   const results = {
@@ -12,13 +11,13 @@ export const GET = async (event: APIEvent) => {
       hasUrl: !!process.env.TURSO_DATABASE_URL || !!process.env.LOCAL_DB,
       hasSyncUrl: !!process.env.DB_URL,
       hasAuthToken: !!process.env.TURSO_AUTH_TOKEN,
-      env: process.env.NODE_ENV || "unknown"
+      env: process.env.NODE_ENV || "unknown",
     },
     tests: {
       init: false,
-      query: false
+      query: false,
     },
-    errors: [] as string[]
+    errors: [] as string[],
   };
 
   try {
@@ -33,7 +32,7 @@ export const GET = async (event: APIEvent) => {
     // Test a simple query
     try {
       const queryResult = await turso.execute({
-        sql: "SELECT 1 as test_value"
+        sql: "SELECT 1 as test_value",
       });
 
       results.tests.query = queryResult?.rows?.length > 0;
@@ -42,7 +41,9 @@ export const GET = async (event: APIEvent) => {
         results.errors.push("Query test failed - no results returned");
       }
     } catch (queryError) {
-      results.errors.push(`Query test error: ${queryError instanceof Error ? queryError.message : String(queryError)}`);
+      results.errors.push(
+        `Query test error: ${queryError instanceof Error ? queryError.message : String(queryError)}`,
+      );
     }
 
     // Set overall status
@@ -55,7 +56,9 @@ export const GET = async (event: APIEvent) => {
     return json(results);
   } catch (error) {
     results.status = "error";
-    results.errors.push(`General error: ${error instanceof Error ? error.message : String(error)}`);
+    results.errors.push(
+      `General error: ${error instanceof Error ? error.message : String(error)}`,
+    );
 
     return json(results, { status: 500 });
   }

@@ -11,7 +11,7 @@ export async function GET({ request }: APIEvent) {
 
   try {
     const record = await netsuiteRequestWithRetry(
-      `/app/site/hosting/restlet.nl?script=1883&deploy=2&soNum=${soNum}`,
+      `/app/site/hosting/restlet.nl?script=2036&deploy=1&soNum=${soNum}`,
       {
         method: "GET",
       },

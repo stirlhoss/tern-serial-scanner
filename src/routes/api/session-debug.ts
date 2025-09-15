@@ -1,8 +1,7 @@
 import { json } from "@solidjs/router";
-import type { APIEvent } from "@solidjs/start/server";
 import { getSession } from "~/lib/server";
 
-export const GET = async (event: APIEvent) => {
+export const GET = async () => {
   "use server";
 
   try {
@@ -19,16 +18,19 @@ export const GET = async (event: APIEvent) => {
       timestamp: new Date().toISOString(),
       // Don't expose actual session data in production
       ...(process.env.NODE_ENV !== "production" && {
-        sessionData: sessionData
-      })
+        sessionData: sessionData,
+      }),
     });
   } catch (error) {
-    return json({
-      status: "error",
-      error: error instanceof Error ? error.message : "Unknown error",
-      hasSessionSecret: !!process.env.SESSION_SECRET,
-      nodeEnv: process.env.NODE_ENV,
-      timestamp: new Date().toISOString()
-    }, { status: 500 });
+    return json(
+      {
+        status: "error",
+        error: error instanceof Error ? error.message : "Unknown error",
+        hasSessionSecret: !!process.env.SESSION_SECRET,
+        nodeEnv: process.env.NODE_ENV,
+        timestamp: new Date().toISOString(),
+      },
+      { status: 500 },
+    );
   }
 };
