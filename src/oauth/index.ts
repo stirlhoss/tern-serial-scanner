@@ -64,10 +64,7 @@ export default function OAuth(config: Configuration) {
                     accountId: accountId,
                     verifier: decoded.verifier,
                 });
-            const user = await requestUser(
-                `${token_type} ${access_token}`,
-                accountId,
-            );
+            const user = await requestUser(`${token_type} ${access_token}`);
 
             return handler(
                 user.email,

@@ -1,6 +1,8 @@
 import { urlEncode, exchangeToken, fetchUser } from "../utils";
 import type { Methods } from "../types";
 
+const userinfoUrl = process.env.NETSUITE_USER_INFO_URL!;
+
 const netsuite: Methods = {
     requestCode({ id, accountId, redirect_uri, state, challenge }) {
         const params = urlEncode({
@@ -34,11 +36,8 @@ const netsuite: Methods = {
             verifier,
         );
     },
-    async requestUser(token: string, accountId: string) {
-        const res = await fetchUser(
-            `https://${accountId}.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=1869&deploy=1`,
-            token,
-        );
+    async requestUser(token: string) {
+        const res = await fetchUser(userinfoUrl, token);
 
         const { name, email } = res;
         return {

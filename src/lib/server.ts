@@ -5,6 +5,8 @@ import { createUser, findUserByEmail } from "./db";
 export interface Session {
   id: string;
   email: string;
+  name?: string;
+  location?: 15 | 16;
   accessToken?: string;
   refreshToken?: string;
 }
@@ -37,6 +39,7 @@ export const oauthSignIn = async (
   redirectTo?: string,
 ) => {
   let user = await findUserByEmail(email);
+
   if (!user) user = await createUser(email);
 
   return createSession({ ...user, accessToken, refreshToken }, redirectTo);

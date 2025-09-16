@@ -1,5 +1,6 @@
 import { createAsync } from "@solidjs/router";
 import { createSignal, Suspense, For, Show } from "solid-js";
+import { useSession } from "~/lib/Context";
 import { SerialNumberData } from "~/routes/api/submit-serial-numbers";
 
 interface Id {
@@ -31,8 +32,10 @@ const getSalesOrderId = async (soNum: string) => {
 };
 
 export default function Form() {
+  const { session } = useSession();
+  const userLocation = () => session()?.location?.toString();
   const [soNum, setSoNum] = createSignal("");
-  const [selectedLocation, setSelectedLocation] = createSignal("15");
+  const [selectedLocation, setSelectedLocation] = createSignal(userLocation());
   const [serialNumbers, setSerialNumbers] = createSignal<
     Record<string, string>
   >({});
@@ -95,7 +98,6 @@ export default function Form() {
 
       // Reset form state after successful submission
       setSoNum("");
-      setSelectedLocation("15");
       setSerialNumbers({});
     } catch (error) {
       console.error("Failed to submit serial numbers:", error);

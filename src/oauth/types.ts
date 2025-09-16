@@ -46,5 +46,5 @@ export interface Methods {
             verifier: string;
         },
     ): Token;
-    requestUser(token: string, accountId: string): Promise<User>;
+    requestUser(token: string): Promise<User>;
 }
