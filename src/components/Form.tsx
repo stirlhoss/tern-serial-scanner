@@ -84,7 +84,7 @@ export default function Form() {
         }
       });
 
-      await fetch(`/api/submit-serial-numbers`, {
+      const res = await fetch(`/api/submit-serial-numbers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -94,15 +94,17 @@ export default function Form() {
         }),
       });
 
-      alert("Serial numbers submitted successfully!");
-
-      // Reset form state after successful submission
-      setSoNum("");
-      setSerialNumbers({});
+      if (res.status === 200) {
+        alert("Serial numbers submitted successfully!");
+      } else {
+        alert(`Something went wrong! Request returned HTTP: ${res.status}`);
+      }
     } catch (error) {
       console.error("Failed to submit serial numbers:", error);
       alert("Failed to submit serial numbers. Please try again.");
     } finally {
+      setSoNum("");
+      setSerialNumbers({});
       setIsSubmitting(false);
     }
   };

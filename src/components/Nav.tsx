@@ -2,15 +2,15 @@ import { useMatch } from "@solidjs/router";
 import { Show } from "solid-js";
 import { useSession } from "~/lib/Context";
 
+const handleLogout = () => {
+  fetch("/api/logout", { method: "POST" }).finally(() => {
+    window.location.href = "/login";
+  });
+};
+
 export default function Nav() {
   const { signedIn } = useSession();
   const isHome = useMatch(() => "/");
-
-  const handleLogout = () => {
-    fetch("/api/logout", { method: "POST" }).finally(() => {
-      window.location.href = "/login";
-    });
-  };
 
   return (
     <nav class="fixed top-0 left-0 w-full bg-sky-800 shadow-md z-50">
