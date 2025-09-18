@@ -6,7 +6,7 @@ export default function Home() {
   const { session, signedIn } = useSession();
 
   return (
-    <main class="flex items-center justify-center min-h-screen bg-gray-100 text-gray-900 p-4 pt-20">
+    <main class="flex items-start justify-center min-h-screen bg-gray-100 text-gray-900 p-4 pt-30">
       <div class="w-full max-w-4xl text-center space-y-8">
         <Show when={signedIn()}>
           <div class="bg-white rounded-lg shadow-2xl border-2 border-gray-900 p-4 mb-6 inline-block">
