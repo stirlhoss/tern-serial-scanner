@@ -9,7 +9,7 @@ export interface User {
 
 interface updateUserPayload {
   email?: string;
-  name?: string;
+  name?: string | null;
   location?: 15 | 16;
 }
 
@@ -139,7 +139,7 @@ export async function findUserById(userId: string) {
 
 export async function updateUser(userId: string, updates: updateUserPayload) {
   const setClauses: string[] = [];
-  const args: (string | null)[] = [];
+  const args: (string | number | null)[] = [];
 
   if (updates.email !== undefined) {
     setClauses.push("email = ?");
@@ -150,8 +150,8 @@ export async function updateUser(userId: string, updates: updateUserPayload) {
     args.push(updates.name);
   }
   if (updates.location !== undefined) {
-    setClauses.push("name = ?");
-    args.push(updates.location.toString());
+    setClauses.push("location = ?");
+    args.push(updates.location);
   }
 
   if (setClauses.length === 0) {

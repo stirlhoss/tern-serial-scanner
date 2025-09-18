@@ -1,5 +1,5 @@
 import { createAsync } from "@solidjs/router";
-import { createSignal, Suspense, For, Show } from "solid-js";
+import { createSignal, Suspense, For, Show, createEffect } from "solid-js";
 import { useSession } from "~/lib/Context";
 import { SerialNumberData } from "~/routes/api/submit-serial-numbers";
 
@@ -33,9 +33,16 @@ const getSalesOrderId = async (soNum: string) => {
 
 export default function Form() {
   const { session } = useSession();
-  const userLocation = () => session()?.location?.toString();
   const [soNum, setSoNum] = createSignal("");
-  const [selectedLocation, setSelectedLocation] = createSignal(userLocation());
+  const [selectedLocation, setSelectedLocation] = createSignal("15");
+
+  createEffect(() => {
+    const userLocation = session()?.location?.toString();
+    if (userLocation && selectedLocation() === "15") {
+      setSelectedLocation(userLocation);
+    }
+  });
+
   const [serialNumbers, setSerialNumbers] = createSignal<
     Record<string, string>
   >({});
@@ -127,7 +134,7 @@ export default function Form() {
             class="w-s shadow-md m-auto text-center box-content border-solid border-black border-2 rounded-md px-2 py-1"
             onKeyDown={handleKeyDown}
             onBlur={(e) => setSoNum(e.currentTarget.value)}
-            placeholder="Enter Sales order number"
+            placeholder="Enter SO Number"
           />
         </div>
         <div class="flex flex-col gap-4 text-xl">
