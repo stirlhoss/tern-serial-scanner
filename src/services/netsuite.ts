@@ -122,7 +122,7 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function netsuiteRequest(
+async function netsuiteRequest(
   endpoint: string,
   options: {
     method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
@@ -375,7 +375,7 @@ export async function checkNetSuiteRateLimit(): Promise<NetSuiteRateLimitInfo> {
 }
 
 // Helper function to create a custom retry configuration
-export function createRetryConfig(config: Partial<RetryConfig>): RetryConfig {
+function createRetryConfig(config: Partial<RetryConfig>): RetryConfig {
   return { ...DEFAULT_RETRY_CONFIG, ...config };
 }
 

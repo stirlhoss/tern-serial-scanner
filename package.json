@@ -4,19 +4,21 @@
   "scripts": {
     "dev": "vinxi dev",
     "build": "vinxi build",
-    "start": "vinxi start"
+    "start": "vinxi start",
+    "check": "tsc --noEmit",
+    "knip": "knip"
   },
   "dependencies": {
     "@libsql/client": "^0.15.14",
     "@solidjs/router": "^0.15.3",
     "@solidjs/start": "^1.1.7",
+    "knip": "^5.84.1",
     "node-fetch": "^3.3.2",
     "solid-js": "^1.9.7",
-    "start-oauth": "^1.2.4",
-    "unstorage": "1.16.1",
     "vinxi": "^0.5.8"
   },
   "devDependencies": {
+    "typescript": "^5.9.3",
     "@eslint/js": "^9.34.0",
     "@tailwindcss/vite": "^4.1.11",
     "eslint": "^9.34.0",

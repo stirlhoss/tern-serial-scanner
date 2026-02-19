@@ -6,12 +6,12 @@ interface Id {
 interface RequestBody {
   salesOrderId: Id;
   salesOrderNumber: string;
-  serialNumbers: SerialNumberData[];
+  serviceTagNumbers: ServiceTagNumberData[];
 }
 
-export interface SerialNumberData {
+export interface ServiceTagNumberData {
   itemLineId: number;
-  serialNumbers: string[];
+  tagNumbers: string[];
 }
 
 export async function POST({ request }: APIEvent) {
@@ -21,19 +21,19 @@ export async function POST({ request }: APIEvent) {
     const data = (await request.json()) as RequestBody;
 
     console.log(
-      `Updating serial numbers for sales order items on SO: ${data.salesOrderId.id}`,
+      `Updating service tag numbers for sales order items on SO: ${data.salesOrderId.id}`,
     );
 
     // Validate input data
     if (
       !data.salesOrderId ||
-      !data.serialNumbers ||
-      data.serialNumbers.length === 0
+      !data.serviceTagNumbers ||
+      data.serviceTagNumbers.length === 0
     ) {
       return new Response(
         JSON.stringify({
           error: "Invalid request data",
-          details: "Missing salesOrderId or serialNumbers",
+          details: "Missing salesOrderId or serviceTagNumbers",
         }),
         {
           status: 400,
@@ -42,10 +42,10 @@ export async function POST({ request }: APIEvent) {
       );
     }
     console.log(JSON.stringify(data.salesOrderId.id, null, 2));
-    const itemRequests = data.serialNumbers.map((item) => {
-      const serials: string = item.serialNumbers.join(`\n`);
+    const itemRequests = data.serviceTagNumbers.map((item) => {
+      const serviceTags: string = item.tagNumbers.join(`\n`);
 
-      const body = { custcol_nsts_bike_serial_number: serials };
+      const body = { custcol_kaizco_service_tag_number: serviceTags };
 
       return {
         endpoint: `/services/rest/record/v1/salesorder/${data.salesOrderId.id}/item/${item.itemLineId}`,
@@ -62,7 +62,7 @@ export async function POST({ request }: APIEvent) {
       });
 
       console.log(
-        `Successfully updated serial numbers for ${results.length} line items`,
+        `Successfully updated service tag numbers for ${results.length} line items`,
       );
 
       return new Response(
@@ -77,7 +77,7 @@ export async function POST({ request }: APIEvent) {
         },
       );
     } catch (error: any) {
-      console.error("Failed to update serial numbers:", {
+      console.error("Failed to update service tag numbers:", {
         salesOrderId: data.salesOrderId.id,
         error: error.message,
         status: error.status,

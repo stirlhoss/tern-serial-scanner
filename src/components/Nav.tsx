@@ -41,7 +41,7 @@ export default function Nav() {
 
         <div class="flex-1 flex justify-center">
           <h1 class="text-white text-2xl uppercase tracking-wide">
-            Tern Serial Scanner
+            Tern Service Tag Scanner
           </h1>
         </div>
 

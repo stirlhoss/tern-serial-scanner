@@ -6,7 +6,7 @@ export interface Session {
   id: string;
   email: string;
   name?: string;
-  location?: 15 | 16;
+  location?: 15 | 16 | 20;
   accessToken?: string;
   refreshToken?: string;
 }
@@ -22,7 +22,7 @@ export const getSession = () =>
     },
   });
 
-export const createSession = async (
+const createSession = async (
   user: Omit<Session, "accessToken"> & Partial<Session>,
   redirectTo?: string,
 ) => {

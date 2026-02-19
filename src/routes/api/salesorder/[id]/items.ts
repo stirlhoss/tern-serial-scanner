@@ -34,6 +34,7 @@ interface Item {
   custcol_2663_isperson: number;
   custcol_nsts_bike_serial_number: string;
   custcol_statistical_value_base_curr: number;
+  custcol_kaizco_service_tag_number: string;
   description: string;
   excludeFromPredictiveRisk: number;
   expectedShipDate: string;

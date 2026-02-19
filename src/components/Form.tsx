@@ -1,7 +1,7 @@
 import { createAsync } from "@solidjs/router";
 import { createSignal, Suspense, For, Show, createEffect } from "solid-js";
 import { useSession } from "~/lib/Context";
-import { SerialNumberData } from "~/routes/api/submit-serial-numbers";
+import { ServiceTagNumberData } from "~/routes/api/submit-service-tag-numbers";
 
 interface Id {
   id: string;
@@ -43,7 +43,7 @@ export default function Form() {
     }
   });
 
-  const [serialNumbers, setSerialNumbers] = createSignal<
+  const [serviceTagNumbers, setServiceTagNumbers] = createSignal<
     Record<string, string>
   >({});
   const [isSubmitting, setIsSubmitting] = createSignal(false);
@@ -52,8 +52,8 @@ export default function Form() {
   const salesOrder = createAsync(() => getSalesOrderById(soId()));
   const items = createAsync(() => getSalesOrderItems(soId()));
 
-  const updateSerialNumber = (inputId: string, value: string) => {
-    setSerialNumbers((prev) => ({ ...prev, [inputId]: value }));
+  const updateServiceTagNumber = (inputId: string, value: string) => {
+    setServiceTagNumbers((prev) => ({ ...prev, [inputId]: value }));
   };
 
   const itemsFilteredByLoc = () => {
@@ -71,47 +71,47 @@ export default function Form() {
       const currentItems = itemsFilteredByLoc();
       if (!currentItems) return;
 
-      const serialData: SerialNumberData[] = [];
+      const serviceTagData: ServiceTagNumberData[] = [];
 
       currentItems.forEach((item: any, itemIndex: number) => {
-        const itemSerials: string[] = [];
+        const itemServiceTags: string[] = [];
         for (let i = 0; i < item.quantity; i++) {
           const inputId = `${itemIndex}-${i}`;
-          const serial = serialNumbers()[inputId] || "";
-          if (serial.trim()) {
-            itemSerials.push(serial.trim());
+          const serviceTag = serviceTagNumbers()[inputId] || "";
+          if (serviceTag.trim()) {
+            itemServiceTags.push(serviceTag.trim());
           }
         }
 
-        if (itemSerials.length > 0) {
-          serialData.push({
+        if (itemServiceTags.length > 0) {
+          serviceTagData.push({
             itemLineId: item.line,
-            serialNumbers: itemSerials,
+            tagNumbers: itemServiceTags,
           });
         }
       });
 
-      const res = await fetch(`/api/submit-serial-numbers`, {
+      const res = await fetch(`/api/submit-service-tag-numbers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           salesOrderId: soId(),
           salesOrderNumber: soNum(),
-          serialNumbers: serialData,
+          serviceTagNumbers: serviceTagData,
         }),
       });
 
       if (res.status === 200) {
-        alert("Serial numbers submitted successfully!");
+        alert("Service Tag numbers submitted successfully!");
       } else {
         alert(`Something went wrong! Request returned HTTP: ${res.status}`);
       }
     } catch (error) {
-      console.error("Failed to submit serial numbers:", error);
-      alert("Failed to submit serial numbers. Please try again.");
+      console.error("Failed to submit service tag numbers:", error);
+      alert("Failed to submit service tag numbers. Please try again.");
     } finally {
       setSoNum("");
-      setSerialNumbers({});
+      setServiceTagNumbers({});
       setIsSubmitting(false);
     }
   };
@@ -147,6 +147,7 @@ export default function Form() {
           >
             <option value="15">2 - Olney</option>
             <option value="16">1 - West</option>
+            <option value="20">1 - West: Tern Store</option>
           </select>
         </div>
       </div>
@@ -172,10 +173,10 @@ export default function Form() {
                           id={`${index()}-${index2()}`}
                           class="w-s m-auto text-center border-solid border-black border-2 rounded-md"
                           value={
-                            serialNumbers()[`${index()}-${index2()}`] || ""
+                            serviceTagNumbers()[`${index()}-${index2()}`] || ""
                           }
                           onInput={(e) =>
-                            updateSerialNumber(
+                            updateServiceTagNumber(
                               `${index()}-${index2()}`,
                               e.currentTarget.value,
                             )
@@ -197,7 +198,7 @@ export default function Form() {
                               }
                             }
                           }}
-                          placeholder={`Serial ${index2() + 1}`}
+                          placeholder={`Service Tag ${index2() + 1}`}
                         />
                       )}
                     </For>
@@ -214,7 +215,7 @@ export default function Form() {
             class="px-4 py-2 my-4 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
             disabled={isSubmitting()}
           >
-            {isSubmitting() ? "Submitting..." : "Submit Serial Numbers"}
+            {isSubmitting() ? "Submitting..." : "Submit Service Tag Numbers"}
           </button>
         </Show>
       </form>

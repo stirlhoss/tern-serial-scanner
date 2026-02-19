@@ -1,0 +1,14 @@
+{
+  "entry": [
+    "src/app.tsx",
+    "src/app.css",
+    "src/entry-server.tsx",
+    "src/entry-client.tsx",
+    "src/routes/**/*.ts",
+    "src/routes/**/*.tsx",
+    "knip.json",
+    "app.config.ts",
+    "tsconfig.json"
+  ],
+  "project": ["src/**/*.ts", "src/**/*.tsx"]
+}

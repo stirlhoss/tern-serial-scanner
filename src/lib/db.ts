@@ -1,16 +1,16 @@
 import { createClient } from "@libsql/client";
 
-export interface User {
+interface User {
   id: string;
   email: string;
   name?: string;
-  location?: 15 | 16;
+  location?: 15 | 16 | 20;
 }
 
 interface updateUserPayload {
   email?: string;
   name?: string | null;
-  location?: 15 | 16;
+  location?: 15 | 16 | 20;
 }
 
 const config = {
@@ -94,7 +94,7 @@ export async function findUserByEmail(email: string) {
       id: userRow.id as string,
       email: userRow.email as string,
       name: userRow.name as string,
-      location: userRow.location as 15 | 16 | undefined,
+      location: userRow.location as 15 | 16 | 20 | undefined,
     };
 
     return user;
@@ -125,7 +125,7 @@ export async function findUserById(userId: string) {
       id: userRow.id as string,
       email: userRow.email as string,
       name: userRow.name as string,
-      location: userRow.location as 15 | 16 | undefined,
+      location: userRow.location as 15 | 16 | 20 | undefined,
     };
 
     return user;
