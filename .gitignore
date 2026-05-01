@@ -5,7 +5,7 @@ tmp/
 
 node_modules/
 .env
-.data/
+data/
 
 # Local Netlify folder
 .netlify

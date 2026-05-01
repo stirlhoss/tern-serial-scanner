@@ -17,7 +17,7 @@ const config = {
   url:
     process.env.TURSO_DATABASE_URL ??
     process.env.LOCAL_DB ??
-    "file:.data/sqlite.db",
+    "file:./data/sqlite.db",
   authToken: process.env.TURSO_AUTH_TOKEN,
 };
 
