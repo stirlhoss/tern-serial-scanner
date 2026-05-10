@@ -1,5 +1,5 @@
 import { createAsync } from "@solidjs/router";
-import { createSignal, Suspense, For, Show, createEffect } from "solid-js";
+import { createSignal, Suspense, For, Show, createEffect, startTransition } from "solid-js";
 import { useSession } from "~/lib/Context";
 import { ServiceTagNumberData } from "~/routes/api/submit-service-tag-numbers";
 
@@ -51,6 +51,12 @@ export default function Form() {
   const soId = createAsync(() => getSalesOrderId(soNum()));
   const salesOrder = createAsync(() => getSalesOrderById(soId()));
   const items = createAsync(() => getSalesOrderItems(soId()));
+
+  const handleSoNumBlur = (value: string) => {
+    startTransition(() => {
+      setSoNum(value);
+    });
+  };
 
   const updateServiceTagNumber = (inputId: string, value: string) => {
     setServiceTagNumbers((prev) => ({ ...prev, [inputId]: value }));
@@ -133,7 +139,7 @@ export default function Form() {
             id="sonum"
             class="w-s shadow-md m-auto text-center box-content border-solid border-black border-2 rounded-md px-2 py-1"
             onKeyDown={handleKeyDown}
-            onBlur={(e) => setSoNum(e.currentTarget.value)}
+            onBlur={(e) => handleSoNumBlur(e.currentTarget.value)}
             placeholder="Enter SO Number"
           />
         </div>
@@ -152,12 +158,24 @@ export default function Form() {
         </div>
       </div>
 
-      <Suspense fallback={<div>loading...</div>}>
-        <h2 class="text-3xl my-4">{salesOrder()?.entity.refName}</h2>
+      <Suspense
+        fallback={
+          <div class="flex items-center justify-center my-4">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          </div>
+        }
+      >
+        <h2 class="text-3xl my-4">{salesOrder()?.entity?.refName}</h2>
       </Suspense>
 
       <form onSubmit={handleSubmit}>
-        <Suspense fallback={<div>loading...</div>}>
+        <Suspense
+          fallback={
+            <div class="flex items-center justify-center my-4">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            </div>
+          }
+        >
           <div class="flex-col">
             <For each={itemsFilteredByLoc()}>
               {(item, index) => (

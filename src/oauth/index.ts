@@ -47,10 +47,15 @@ export default function OAuth(config: Configuration) {
         if (!params.state) return redirect("/?error=Invalid state");
         const decoded = await decodeState(params.state, password);
         if (!decoded) return redirect("/?error=Invalid state");
-        if (params.error)
+        if (params.error) {
+            const errorMsg =
+                typeof params.error === "object"
+                    ? JSON.stringify(params.error)
+                    : String(params.error);
             return redirect(
-                `${decoded.fallback}?error=${encodeURIComponent(params.error)}`,
+                `${decoded.fallback}?error=${encodeURIComponent(errorMsg)}`,
             );
+        }
         if (!params.code)
             return redirect(decoded.fallback + "?error=Missing code");
 

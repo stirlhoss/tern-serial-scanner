@@ -1,10 +1,16 @@
+import { useSearchParams } from "@solidjs/router";
 import useOAuthLogin from "../oauth/client";
 
 export default function Login() {
+  const [searchParams] = useSearchParams();
+
   return (
     <main class="flex items-center justify-center min-h-screen bg-gray-100 text-gray-900 p-4">
       <div class="w-full max-w-md space-y-8 text-center">
         <h1 class="text-6xl text-gray-900 uppercase">Sign in</h1>
+        {searchParams.error && (
+          <p class="text-red-600 font-bold">Error: {searchParams.error}</p>
+        )}
         <OAuth />
       </div>
     </main>

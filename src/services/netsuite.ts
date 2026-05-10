@@ -43,9 +43,31 @@ interface TokenRes {
 
 const DEFAULT_RETRY_CONFIG: RetryConfig = {
   maxRetries: 3,
-  baseDelay: 1000, // 1 second
-  maxDelay: 30000, // 30 seconds
+  baseDelay: 1000,
+  maxDelay: 30000,
 };
+
+let lastKnownRateLimit: NetSuiteRateLimitInfo = {};
+
+function updateRateLimitState(info: NetSuiteRateLimitInfo) {
+  if (info.remaining !== undefined) lastKnownRateLimit.remaining = info.remaining;
+  if (info.limit !== undefined) lastKnownRateLimit.limit = info.limit;
+  if (info.resetTime !== undefined) lastKnownRateLimit.resetTime = info.resetTime;
+}
+
+function getAdaptiveDelay(baseDelay: number): number {
+  const remaining = lastKnownRateLimit.remaining;
+  if (remaining === undefined) return baseDelay;
+
+  if (remaining <= 3) return Math.max(baseDelay, 3000);
+  if (remaining <= 10) return Math.max(baseDelay, 1000);
+  if (remaining <= 20) return Math.max(baseDelay, 500);
+  return baseDelay;
+}
+
+export function getRateLimitState(): Readonly<NetSuiteRateLimitInfo> {
+  return { ...lastKnownRateLimit };
+}
 
 const getAccessToken = async () => {
   "use server";
@@ -122,6 +144,11 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+interface RequestResult {
+  data: any;
+  rateLimitInfo: NetSuiteRateLimitInfo;
+}
+
 async function netsuiteRequest(
   endpoint: string,
   options: {
@@ -130,7 +157,7 @@ async function netsuiteRequest(
     headers?: any;
     retryConfig?: Partial<RetryConfig>;
   },
-) {
+): Promise<RequestResult> {
   const retryConfig = { ...DEFAULT_RETRY_CONFIG, ...options.retryConfig };
   let accessToken = await getAccessToken();
   let refreshToken = await getRefreshToken();
@@ -165,6 +192,7 @@ async function netsuiteRequest(
       // Parse rate limit info from headers (always available)
       const rateLimitInfo = parseRateLimitHeaders(response);
       lastRateLimitInfo = rateLimitInfo;
+      updateRateLimitState(rateLimitInfo);
 
       // Log rate limit status for monitoring
       if (rateLimitInfo.remaining !== undefined) {
@@ -271,7 +299,6 @@ async function netsuiteRequest(
 
       // If response is empty (common with PATCH operations), return success indicator
       if (!responseText.trim()) {
-        // Log successful request with rate limit info
         if (rateLimitInfo.remaining !== undefined) {
           console.log(
             `NetSuite request successful (empty response). ${rateLimitInfo.remaining} requests remaining.`,
@@ -279,9 +306,12 @@ async function netsuiteRequest(
         }
 
         return {
-          success: true,
-          message: "Operation completed successfully",
-          status: response.status,
+          data: {
+            success: true,
+            message: "Operation completed successfully",
+            status: response.status,
+          },
+          rateLimitInfo,
         };
       }
 
@@ -306,7 +336,7 @@ async function netsuiteRequest(
         );
       }
 
-      return json;
+      return { data: json, rateLimitInfo };
     } catch (error) {
       lastError = error as Error;
 
@@ -347,6 +377,16 @@ async function netsuiteRequest(
   // This should never be reached, but just in case
   throw lastError || new Error("NetSuite request failed for unknown reason");
 }
+
+export {
+  HTTPError,
+  calculateDelay,
+  getAdaptiveDelay,
+  sleep,
+  parseRateLimitHeaders,
+  updateRateLimitState,
+  netsuiteRequest,
+};
 
 // Utility function to make a lightweight request to check rate limit status
 export async function checkNetSuiteRateLimit(): Promise<NetSuiteRateLimitInfo> {
@@ -416,10 +456,11 @@ export async function netsuiteRequestWithRetry(
   },
   retryStrategy: keyof typeof retryConfigs = "standard",
 ) {
-  return netsuiteRequest(endpoint, {
+  const result = await netsuiteRequest(endpoint, {
     ...options,
     retryConfig: retryConfigs[retryStrategy],
   });
+  return result.data;
 }
 
 // Batch request handler with built-in rate limit management
@@ -449,8 +490,8 @@ export async function netsuiteRequestBatch<T>(
   }
 
   const {
-    concurrency = 3,
-    delayBetweenRequests = 100,
+    concurrency = 2,
+    delayBetweenRequests = 200,
     retryStrategy = "standard",
   } = batchOptions;
 
@@ -492,9 +533,10 @@ export async function netsuiteRequestBatch<T>(
       }
     });
 
-    // Add delay between batches to be nice to the API
-    if (i + concurrency < requests.length && delayBetweenRequests > 0) {
-      await sleep(delayBetweenRequests);
+    const adaptiveDelay = getAdaptiveDelay(delayBetweenRequests);
+    if (i + concurrency < requests.length && adaptiveDelay > 0) {
+      console.log(`Waiting ${adaptiveDelay}ms before next batch (rate limit: ${lastKnownRateLimit.remaining}/${lastKnownRateLimit.limit || "unknown"})`);
+      await sleep(adaptiveDelay);
     }
   }
 
@@ -518,7 +560,7 @@ async function netsuiteRequestSequential<T>(
   } = {},
 ): Promise<T[]> {
   const {
-    delayBetweenRequests = 50, // Longer delay for PATCH operations
+    delayBetweenRequests = 200,
     retryStrategy = "standard",
   } = batchOptions;
 
@@ -541,10 +583,10 @@ async function netsuiteRequestSequential<T>(
       results.push(result);
       console.log(`Sequential request ${i + 1} completed successfully`);
 
-      // Add delay between requests except for the last one
-      if (i < requests.length - 1 && delayBetweenRequests > 0) {
-        console.log(`Waiting ${delayBetweenRequests}ms before next request...`);
-        await sleep(delayBetweenRequests);
+      if (i < requests.length - 1) {
+        const adaptiveDelay = getAdaptiveDelay(delayBetweenRequests);
+        console.log(`Waiting ${adaptiveDelay}ms before next request (rate limit: ${lastKnownRateLimit.remaining}/${lastKnownRateLimit.limit || "unknown"})`);
+        await sleep(adaptiveDelay);
       }
     } catch (error) {
       console.error(`Sequential request ${i + 1} failed:`, {

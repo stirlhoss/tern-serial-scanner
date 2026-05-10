@@ -16,8 +16,10 @@ export default function App() {
     <Router
       root={(props) => (
         <Session>
-          <Suspense>
+          <Suspense fallback={<div class="fixed top-0 left-0 w-full bg-gray-900 shadow-md z-50 p-3 text-white text-center">Loading...</div>}>
             <Nav />
+          </Suspense>
+          <Suspense>
             {props.children}
           </Suspense>
         </Session>
