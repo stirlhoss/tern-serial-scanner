@@ -2,7 +2,7 @@ import fetch from "node-fetch";
 import { getSession } from "~/lib/server";
 import { urlEncode } from "~/oauth/utils";
 
-const NETSUITE_ACCOUNT_ID = import.meta.env.VITE_NETSUITE_ACCOUNT_ID;
+const NETSUITE_ACCOUNT_ID = process.env.NETSUITE_ACCOUNT_ID;
 const NETSUITE_API_BASE_URL = `https://${NETSUITE_ACCOUNT_ID}.suitetalk.api.netsuite.com`;
 const NETSUITE_CLIENT_ID = process.env.NETSUITE_ID;
 

@@ -12,10 +12,9 @@ export default defineConfig({
             }),
         ],
         server: {
-            preset: "netlify",
             allowedHosts: [
                 "shortly-master-marmot.ngrok-free.app",
-                "tern-serial-scanner.netlify.app",
+                "tern-serial-scanner.fly.app",
             ],
         },
     },

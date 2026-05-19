@@ -6,7 +6,7 @@ const config: Configuration = {
   netsuite: {
     id: process.env.NETSUITE_ID!,
     secret: process.env.NETSUITE_SECRET!,
-    accountId: import.meta.env.VITE_NETSUITE_ACCOUNT_ID!,
+    accountId: process.env.NETSUITE_ACCOUNT_ID!,
   },
   handler: async (email, location, accessToken, redirectTo) =>
     oauthSignIn(email, location, accessToken, redirectTo),
