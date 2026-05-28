@@ -266,6 +266,7 @@ export default function Profile() {
                   <option value="15">2 - Olney</option>
                   <option value="16">1 - West</option>
                   <option value="20">1 - West: Tern Store</option>
+                  <option value="65">1 - West: REI</option>
                 </select>
                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                   <svg

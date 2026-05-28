@@ -148,6 +148,7 @@ export default function Form() {
             <option value="15">2 - Olney</option>
             <option value="16">1 - West</option>
             <option value="20">1 - West: Tern Store</option>
+            <option value="65">1 - West: REI</option>
           </select>
         </div>
       </div>

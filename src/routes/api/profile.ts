@@ -4,7 +4,7 @@ import { updateUser, findUserById } from "~/lib/db";
 
 interface ProfileUpdateData {
   name?: string | null;
-  location?: 15 | 16 | 20;
+  location?: 15 | 16 | 20 | 65;
 }
 
 export async function POST({ request }: { request: Request }) {
@@ -32,13 +32,13 @@ export async function POST({ request }: { request: Request }) {
 
     if (location !== undefined) {
       const locationNum = parseInt(location);
-      if (locationNum === 15 || locationNum === 16 || locationNum === 20) {
+      if (locationNum === 15 || locationNum === 16 || locationNum === 20 || locationNum === 65) {
         updates.location = locationNum;
       } else if (location !== "" && location !== null) {
         return json(
           {
             success: false,
-            message: "Invalid location. Must be 15, 16 or 20.",
+            message: "Invalid location. Must be 15, 16, 20 or 65.",
           },
           { status: 400 },
         );

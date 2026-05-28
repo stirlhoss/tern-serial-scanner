@@ -6,7 +6,7 @@ export interface Session {
   id: string;
   email: string;
   name?: string;
-  location?: 15 | 16 | 20;
+  location?: 15 | 16 | 20 | 65;
   accessToken?: string;
   refreshToken?: string;
 }
