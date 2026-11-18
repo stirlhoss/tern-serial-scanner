@@ -212,15 +212,17 @@ export default function Form() {
           </div>
         </Suspense>
 
-        <Show when={salesOrder()}>
-          <button
-            type="submit"
-            class="px-4 py-2 my-4 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
-            disabled={isSubmitting()}
-          >
-            {isSubmitting() ? "Submitting..." : "Submit Service Tag Numbers"}
-          </button>
-        </Show>
+        <Suspense>
+          <Show when={salesOrder()}>
+            <button
+              type="submit"
+              class="px-4 py-2 my-4 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              disabled={isSubmitting()}
+            >
+              {isSubmitting() ? "Submitting..." : "Submit Service Tag Numbers"}
+            </button>
+          </Show>
+        </Suspense>
       </form>
     </>
   );
