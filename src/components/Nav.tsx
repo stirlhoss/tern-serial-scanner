@@ -1,5 +1,5 @@
 import { useMatch } from "@solidjs/router";
-import { createSignal, onCleanup, onMount, Show } from "solid-js";
+import { createEffect, createSignal, onCleanup, Show } from "solid-js";
 import { useSession } from "~/lib/Context";
 
 const MOBILE_MEDIA = "(max-width: 640px)";
@@ -18,8 +18,6 @@ export default function Nav() {
 
   const [collapsed, setCollapsed] = createSignal(false);
 
-  let mq: MediaQueryList | undefined;
-
   function toggleCollapsed(next: boolean) {
     if (document.startViewTransition) {
       document.startViewTransition(() => setCollapsed(next));
@@ -29,29 +27,31 @@ export default function Nav() {
     }
   }
 
-  function handleScroll() {
-    // Only collapse on mobile; desktop keeps the full-height nav.
-    if (!mq?.matches) return;
-    const shouldCollapse = window.scrollY > COLLAPSE_THRESHOLD;
-    if (shouldCollapse !== collapsed()) {
-      toggleCollapsed(shouldCollapse);
+  createEffect(() => {
+    // createEffect only runs on the client (SSR skips effects), so window is safe.
+    const mq = window.matchMedia(MOBILE_MEDIA);
+
+    function handleScroll() {
+      // Only collapse on mobile; desktop keeps the full-height nav.
+      if (!mq.matches) return;
+      const shouldCollapse = window.scrollY > COLLAPSE_THRESHOLD;
+      if (shouldCollapse !== collapsed()) {
+        toggleCollapsed(shouldCollapse);
+      }
     }
-  }
 
-  function handleMediaChange() {
-    // Switching back to desktop resets to the expanded nav.
-    if (!mq?.matches) setCollapsed(false);
-  }
+    function handleMediaChange() {
+      // Switching back to desktop resets to the expanded nav.
+      if (!mq.matches) setCollapsed(false);
+    }
 
-  onMount(() => {
-    mq = window.matchMedia(MOBILE_MEDIA);
     mq.addEventListener("change", handleMediaChange);
     window.addEventListener("scroll", handleScroll, { passive: true });
-  });
 
-  onCleanup(() => {
-    mq?.removeEventListener("change", handleMediaChange);
-    window.removeEventListener("scroll", handleScroll);
+    onCleanup(() => {
+      mq.removeEventListener("change", handleMediaChange);
+      window.removeEventListener("scroll", handleScroll);
+    });
   });
 
   return (
