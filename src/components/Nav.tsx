@@ -90,7 +90,8 @@ export default function Nav() {
               collapsed() ? "text-base" : "text-2xl"
             }`}
           >
-            Tern Service Tag Scanner
+            <span class="hidden sm:inline">Tern Service Tag Scanner</span>
+            <span class="sm:hidden">T&nbsp;S&nbsp;T&nbsp;S</span>
           </h1>
         </div>
 
