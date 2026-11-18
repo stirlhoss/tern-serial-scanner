@@ -130,6 +130,7 @@ export default function Form() {
           <label for="sonum">Sales order number</label>
           <input
             type="text"
+            inputmode="none"
             id="sonum"
             class="w-s shadow-md m-auto text-center box-content border-solid border-black border-2 rounded-md px-2 py-1"
             onKeyDown={handleKeyDown}
@@ -171,6 +172,7 @@ export default function Form() {
                       {(item, index2) => (
                         <input
                           type="text"
+                          inputmode="none"
                           id={`${index()}-${index2()}`}
                           class="w-s m-auto text-center border-solid border-black border-2 rounded-md"
                           value={
